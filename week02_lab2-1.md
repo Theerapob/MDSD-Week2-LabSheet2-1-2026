@@ -1217,6 +1217,69 @@ void main() async {
 3. สร้าง `Stream<String>` ที่จำลองการส่ง Chat Message ทุก 1 วินาที เป็นเวลา 5 ครั้ง แล้วแสดงผลผ่าน `await for`
 
 **บันทึกผลการทดลอง: บันทึกโค้ดคำสั่งที่ได้**
+
+import 'dart:async';
+
+// 1. คำนวณภาษีแบบอัตราก้าวหน้า
+Future<double> calculateTax(double income) async {
+  await Future.delayed(Duration(milliseconds: 500));
+
+  if (income <= 150000) {
+    return 0;
+  } else if (income <= 300000) {
+    return income * 0.05;
+  } else if (income <= 500000) {
+    return income * 0.10;
+  } else {
+    return income * 0.20;
+  }
+}
+
+// 2. จำลองการดึงข้อมูลรายได้ของผู้ใช้
+Future<double> getIncome(String name, double income) async {
+  await Future.delayed(Duration(milliseconds: 500));
+  print('ดึงข้อมูลรายได้ของ $name สำเร็จ');
+  return income;
+}
+
+// 3. สร้าง Stream จำลองการส่งข้อความ Chat
+Stream<String> chatMessages() async* {
+  for (int i = 1; i <= 5; i++) {
+    await Future.delayed(Duration(seconds: 1));
+    yield 'Chat Message $i';
+  }
+}
+
+void main() async {
+  // ดึงข้อมูลรายได้ 3 คนพร้อมกัน
+  List<double> incomes = await Future.wait([
+    getIncome('User 1', 120000),
+    getIncome('User 2', 250000),
+    getIncome('User 3', 600000),
+  ]);
+
+  // คำนวณภาษีแต่ละคน
+  double totalTax = 0;
+
+  for (int i = 0; i < incomes.length; i++) {
+    double tax = await calculateTax(incomes[i]);
+
+    print('User ${i + 1} รายได้: ${incomes[i]} บาท');
+    print('ภาษีที่ต้องจ่าย: ${tax.toStringAsFixed(2)} บาท');
+
+    totalTax += tax;
+  }
+
+  print('รวมภาษีทั้งหมด: ${totalTax.toStringAsFixed(2)} บาท');
+
+  // รับข้อความผ่าน Stream ด้วย await for
+  print('\n--- Chat Messages ---');
+
+  await for (String message in chatMessages()) {
+    print(message);
+  }
+}
+
 ```dart
 // บันทึกโค้ดในส่วนนี้
 
